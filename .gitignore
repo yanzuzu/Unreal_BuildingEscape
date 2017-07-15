@@ -1,0 +1,7 @@
+BuildingEscape/Build/
+BuildingEscape/Binaries/
+BuildingEscape/DerivedDataCache/
+BuildingEscape/Saved/
+*.db
+BuildingEscape/Content/StarterContent/
+BuildingEscape/Intermediate/
