@@ -30,4 +30,9 @@ private:
 	UInputComponent* inputComponent = nullptr;
 
 	void Grab();
+	void ReleaseGrab();
+
+	void FindPhysicHandleComponent();
+	void FindInputComponent();
+	const FHitResult GetFirstHitResult();
 };

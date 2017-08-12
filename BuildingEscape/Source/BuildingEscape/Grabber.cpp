@@ -20,40 +20,40 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
+	FindPhysicHandleComponent();
+	FindInputComponent();
+}
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber start"));
-	
+void UGrabber::FindPhysicHandleComponent()
+{
 	physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	inputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+
 	if (physicsHandle)
 	{
-		
+
 	}
 	else
 	{
-		UE_LOG(LogTemp,Error, TEXT("obj %s doesn't have physics Handle component"),*GetOwner()->GetName())
+		UE_LOG(LogTemp, Error, TEXT("obj %s doesn't have physics Handle component"), *GetOwner()->GetName())
 	}
+}
 
+void UGrabber::FindInputComponent()
+{
+	inputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (inputComponent)
 	{
 		inputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		inputComponent->BindAction("Grab", IE_Released, this, &UGrabber::ReleaseGrab);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Obj %s doesn't have input component"),*GetOwner()->GetName());
+		UE_LOG(LogTemp, Error, TEXT("Obj %s doesn't have input component"), *GetOwner()->GetName());
 	}
 }
 
-void UGrabber::Grab()
+const FHitResult UGrabber::GetFirstHitResult()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!!!"));
-}
-
-// Called every frame
-void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
-
 	FVector PlayerViewPortPos;
 	FRotator PlayerViewPortRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
@@ -61,17 +61,7 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 		OUT PlayerViewPortRotation
 	);
 	//UE_LOG(LogTemp, Warning, TEXT("ViewPoint pos = %s, rotation = %s"),*PlayerViewPortPos.ToString(), *PlayerViewPortRotation.ToString());
-	FVector LineTraceEnd = PlayerViewPortPos  +  PlayerViewPortRotation.Vector() * lineTraceLen;
-	DrawDebugLine(
-		GetWorld(),
-		PlayerViewPortPos,
-		LineTraceEnd,
-		FColor(255, 0, 0),
-		false,
-		0,
-		0,
-		10.0f
-	);
+	FVector LineTraceEnd = PlayerViewPortPos + PlayerViewPortRotation.Vector() * lineTraceLen;
 
 	FHitResult Hit;
 	GetWorld()->LineTraceSingleByObjectType(
@@ -79,12 +69,30 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 		PlayerViewPortPos,
 		LineTraceEnd,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
-		FCollisionQueryParams(FName(TEXT("")),false,GetOwner())
+		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
 	);
 
 	if (Hit.Actor != NULL)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit actor = %s"), *Hit.GetActor()->GetName());
 	}
+	return Hit;
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!!!"));
+	GetFirstHitResult();
+}
+
+void UGrabber::ReleaseGrab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Release!!!"))
+}
+
+// Called every frame
+void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+{
+	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 }
 
