@@ -24,4 +24,10 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	float lineTraceLen = 100.0f;
+
+	UPhysicsHandleComponent* physicsHandle = nullptr;
+
+	UInputComponent* inputComponent = nullptr;
+
+	void Grab();
 };

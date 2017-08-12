@@ -2,6 +2,7 @@
 
 #include "BuildingEscape.h"
 #include "Grabber.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 
 #define OUT
 // Sets default values for this component's properties
@@ -22,8 +23,31 @@ void UGrabber::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("Grabber start"));
 	
+	physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	inputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (physicsHandle)
+	{
+		
+	}
+	else
+	{
+		UE_LOG(LogTemp,Error, TEXT("obj %s doesn't have physics Handle component"),*GetOwner()->GetName())
+	}
+
+	if (inputComponent)
+	{
+		inputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Obj %s doesn't have input component"),*GetOwner()->GetName());
+	}
 }
 
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!!!"));
+}
 
 // Called every frame
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
