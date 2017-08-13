@@ -35,4 +35,7 @@ private:
 	void FindPhysicHandleComponent();
 	void FindInputComponent();
 	const FHitResult GetFirstHitResult();
+
+	FVector GetLineTraceStartPos();
+	FVector GetLineTraceEndPos();
 };

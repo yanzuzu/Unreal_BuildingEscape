@@ -11,10 +11,7 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
-
 
 // Called when the game starts
 void UGrabber::BeginPlay()
@@ -28,11 +25,7 @@ void UGrabber::FindPhysicHandleComponent()
 {
 	physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 
-	if (physicsHandle)
-	{
-
-	}
-	else
+	if (physicsHandle != nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("obj %s doesn't have physics Handle component"), *GetOwner()->GetName())
 	}
@@ -54,34 +47,41 @@ void UGrabber::FindInputComponent()
 
 const FHitResult UGrabber::GetFirstHitResult()
 {
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		GetLineTraceStartPos(),
+		GetLineTraceEndPos(),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
+	);
+	return Hit;
+}
+
+FVector UGrabber::GetLineTraceStartPos()
+{
 	FVector PlayerViewPortPos;
 	FRotator PlayerViewPortRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
 		OUT PlayerViewPortPos,
 		OUT PlayerViewPortRotation
 	);
-	//UE_LOG(LogTemp, Warning, TEXT("ViewPoint pos = %s, rotation = %s"),*PlayerViewPortPos.ToString(), *PlayerViewPortRotation.ToString());
-	FVector LineTraceEnd = PlayerViewPortPos + PlayerViewPortRotation.Vector() * lineTraceLen;
+	return PlayerViewPortPos;
+}
 
-	FHitResult Hit;
-	GetWorld()->LineTraceSingleByObjectType(
-		OUT Hit,
-		PlayerViewPortPos,
-		LineTraceEnd,
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
-		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
+FVector UGrabber::GetLineTraceEndPos()
+{
+	FVector PlayerViewPortPos;
+	FRotator PlayerViewPortRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPortPos,
+		OUT PlayerViewPortRotation
 	);
-
-	if (Hit.Actor != NULL)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit actor = %s"), *Hit.GetActor()->GetName());
-	}
-	return Hit;
+	return PlayerViewPortPos + PlayerViewPortRotation.Vector() * lineTraceLen;
 }
 
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!!!"));
 	auto HitResult = GetFirstHitResult();
 	if (HitResult.GetActor() != nullptr)
 	{
@@ -97,7 +97,6 @@ void UGrabber::Grab()
 
 void UGrabber::ReleaseGrab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab Release!!!"))
 	physicsHandle->ReleaseComponent();
 }
 
@@ -107,14 +106,7 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 	if (physicsHandle->GrabbedComponent)
 	{
-		FVector PlayerViewPortPos;
-		FRotator PlayerViewPortRotation;
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-			OUT PlayerViewPortPos,
-			OUT PlayerViewPortRotation
-		);
-		FVector LineTraceEnd = PlayerViewPortPos + PlayerViewPortRotation.Vector() * lineTraceLen;
-		physicsHandle->SetTargetLocation(LineTraceEnd);
+		physicsHandle->SetTargetLocation(GetLineTraceEndPos());
 	}
 }
 
