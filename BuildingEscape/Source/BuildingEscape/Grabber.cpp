@@ -82,17 +82,39 @@ const FHitResult UGrabber::GetFirstHitResult()
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed!!!"));
-	GetFirstHitResult();
+	auto HitResult = GetFirstHitResult();
+	if (HitResult.GetActor() != nullptr)
+	{
+		auto HitComponent = HitResult.GetComponent();
+		physicsHandle->GrabComponent(
+			HitComponent,
+			NAME_None,
+			HitComponent->GetOwner()->GetActorLocation(),
+			true
+		);
+	}
 }
 
 void UGrabber::ReleaseGrab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Release!!!"))
+	physicsHandle->ReleaseComponent();
 }
 
 // Called every frame
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	if (physicsHandle->GrabbedComponent)
+	{
+		FVector PlayerViewPortPos;
+		FRotator PlayerViewPortRotation;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+			OUT PlayerViewPortPos,
+			OUT PlayerViewPortRotation
+		);
+		FVector LineTraceEnd = PlayerViewPortPos + PlayerViewPortRotation.Vector() * lineTraceLen;
+		physicsHandle->SetTargetLocation(LineTraceEnd);
+	}
 }
 
