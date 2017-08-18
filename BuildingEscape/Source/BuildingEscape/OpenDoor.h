@@ -35,8 +35,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CloseDoorTime = 1;
 
+	UPROPERTY(EditAnywhere)
+	float OpenDoorMassThres = 50.0f;
+
+	float GetOverlapActorsMass();
+
 	float LastOpenDoorTime = 0;
 
-	AActor * OpenDoorActor;
 	AActor * SelfActorObj;
 };
