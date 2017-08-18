@@ -86,6 +86,10 @@ void UGrabber::Grab()
 	if (HitResult.GetActor() != nullptr)
 	{
 		auto HitComponent = HitResult.GetComponent();
+		if (physicsHandle == nullptr)
+		{
+			return;
+		}
 		physicsHandle->GrabComponent(
 			HitComponent,
 			NAME_None,
@@ -97,6 +101,10 @@ void UGrabber::Grab()
 
 void UGrabber::ReleaseGrab()
 {
+	if (physicsHandle == nullptr)
+	{
+		return;
+	}
 	physicsHandle->ReleaseComponent();
 }
 
@@ -104,6 +112,10 @@ void UGrabber::ReleaseGrab()
 void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	if (physicsHandle == nullptr)
+	{
+		return;
+	}
 	if (physicsHandle->GrabbedComponent)
 	{
 		physicsHandle->SetTargetLocation(GetLineTraceEndPos());
