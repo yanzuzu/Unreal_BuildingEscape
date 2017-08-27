@@ -30,7 +30,8 @@ void UOpenDoor::BeginPlay()
 
 void UOpenDoor::OpenDoor()
 {
-	SelfActorObj->SetActorRotation(FRotator(0, OpenAngle, 0));
+	//SelfActorObj->SetActorRotation(FRotator(0, OpenAngle, 0));
+	OnOpenRequest.Broadcast();
 }
 
 void UOpenDoor::CloseDoor()
