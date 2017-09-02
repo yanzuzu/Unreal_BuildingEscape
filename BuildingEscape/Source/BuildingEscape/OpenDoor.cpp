@@ -28,17 +28,6 @@ void UOpenDoor::BeginPlay()
 	}
 }
 
-void UOpenDoor::OpenDoor()
-{
-	//SelfActorObj->SetActorRotation(FRotator(0, OpenAngle, 0));
-	OnOpenRequest.Broadcast();
-}
-
-void UOpenDoor::CloseDoor()
-{
-	SelfActorObj->SetActorRotation(FRotator(0, 0, 0));
-}
-
 
 // Called every frame
 void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
@@ -47,13 +36,11 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
 	if (GetOverlapActorsMass() > OpenDoorMassThres)
 	{
-		OpenDoor();
-		LastOpenDoorTime = GetWorld()->GetTimeSeconds();
+		OnOpenRequest.Broadcast();
 	}
-
-	if (GetWorld()->GetTimeSeconds() - LastOpenDoorTime > CloseDoorTime)
+	else
 	{
-		CloseDoor();
+		OnCloseRequest.Broadcast();
 	}
 }
 
